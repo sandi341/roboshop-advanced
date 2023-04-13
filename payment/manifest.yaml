@@ -2,51 +2,54 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: user-config
+  name: payment-config
+  namespace: roboshop
 data:
-  REDIS_HOST: "redis"
-  MONGO_URL: "mongodb://mongodb:27017/catalogue"
+  CART_HOST: "cart:80"
+  USER_HOST: "user"
+  AMQP_HOST: "rabbitmq"
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user
+  name: payment
   namespace: roboshop
   labels:
-    name: user
+    name: payment
     tier: app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: user
+      name: payment
       tier: app
   template:
     metadata:
       labels:
-        name: user
+        name: payment
         tier: app
     spec:
       containers:
-      - name: user
+      - name: payment
         imagePullPolicy: Always
-        image: techworldwithsiva/user:v1
+        image: techworldwithsiva/payment:k8
         envFrom:
         - configMapRef:
-            name: user-config
+            name: payment-config
         ports:
         - containerPort: 8080
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: user
+  name: payment
   namespace: roboshop
 spec:
   selector:
-    name: user
+    name: payment
     tier: app
   ports:
     - protocol: TCP
       port: 80
       targetPort: 8080
+

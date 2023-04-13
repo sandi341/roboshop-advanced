@@ -2,51 +2,53 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: user-config
+  name: shipping-config
+  namespace: roboshop
 data:
-  REDIS_HOST: "redis"
-  MONGO_URL: "mongodb://mongodb:27017/catalogue"
+  CART_ENDPOINT: "cart"
+  DB_HOST: "mysql"
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: user
+  name: shipping
   namespace: roboshop
   labels:
-    name: user
+    name: shipping
     tier: app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: user
+      name: shipping
       tier: app
   template:
     metadata:
       labels:
-        name: user
+        name: shipping
         tier: app
     spec:
       containers:
-      - name: user
+      - name: shipping
         imagePullPolicy: Always
-        image: techworldwithsiva/user:v1
+        image: techworldwithsiva/shipping:k8
         envFrom:
         - configMapRef:
-            name: user-config
+            name: shipping-config
         ports:
         - containerPort: 8080
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: user
+  name: shipping
   namespace: roboshop
 spec:
   selector:
-    name: user
+    name: shipping
     tier: app
   ports:
     - protocol: TCP
       port: 80
       targetPort: 8080
+
